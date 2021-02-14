@@ -296,7 +296,8 @@ BinaryExpressionTree.prototype.addControls =  function()
 	}
 
 	this.text_field = addControlToAlgorithmBar("Text", "");
-
+	$(this.text_field).attr("placeholder","infix notation");
+	$(this.text_field).val("8^(3+1999)/(30*30)-50");
 	this.text_field.onkeydown = this.returnSubmit(this.text_field,
 	                                              null, // callback to make when return is pressed
 	                                              50,                     // integer, max number of characters allowed in field
