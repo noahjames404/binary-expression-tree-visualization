@@ -27,13 +27,13 @@
 function addLabelToAlgorithmBar(labelName)
 {
     var element = document.createTextNode(labelName);
-	
-	var tableEntry = document.createElement("td");	
+
+	var tableEntry = document.createElement("td");
 	tableEntry.appendChild(element);
-	
-	
+
+
     var controlBar = document.getElementById("AlgorithmSpecificControls");
-	
+
     //Append the element in page (in span).
     controlBar.appendChild(tableEntry);
 	return element;
@@ -42,20 +42,20 @@ function addLabelToAlgorithmBar(labelName)
 // TODO:  Make this stackable like radio butons
 //        (keep backwards compatible, thought)
 function addCheckboxToAlgorithmBar(boxLabel)
-{	
+{
 	var element = document.createElement("input");
 
     element.setAttribute("type", "checkbox");
     element.setAttribute("value", boxLabel);
-	
+
     var label = document.createTextNode(boxLabel);
-	
-	var tableEntry = document.createElement("td");	
+
+	var tableEntry = document.createElement("td");
 	tableEntry.appendChild(element);
 	tableEntry.appendChild(label);
-	
+
     var controlBar = document.getElementById("AlgorithmSpecificControls");
-	
+
     //Append the element in page (in span).
     controlBar.appendChild(tableEntry);
 	return element;
@@ -65,54 +65,54 @@ function addRadioButtonGroupToAlgorithmBar(buttonNames, groupName)
 {
 	var buttonList = [];
 	var newTable = document.createElement("table");
-		
+
 	for (var i = 0; i < buttonNames.length; i++)
 	{
 		var midLevel = document.createElement("tr");
 		var bottomLevel = document.createElement("td");
-		
+
 		var button = document.createElement("input");
 		button.setAttribute("type", "radio");
 		button.setAttribute("name", groupName);
 		button.setAttribute("value", buttonNames[i]);
 		bottomLevel.appendChild(button);
 		midLevel.appendChild(bottomLevel);
-		var txtNode = document.createTextNode(" " + buttonNames[i]); 
+		var txtNode = document.createTextNode(" " + buttonNames[i]);
 		bottomLevel.appendChild(txtNode);
-		newTable.appendChild(midLevel);	
+		newTable.appendChild(midLevel);
 		buttonList.push(button);
 	}
-	
+
 	var topLevelTableEntry = document.createElement("td");
 	topLevelTableEntry.appendChild(newTable);
-	
+
 	var controlBar = document.getElementById("AlgorithmSpecificControls");
 	controlBar.appendChild(topLevelTableEntry);
-	
+
 	return buttonList
 }
 
 
 function addControlToAlgorithmBar(type, name) {
-	
+
     var element = document.createElement("input");
-	
+
     element.setAttribute("type", type);
     element.setAttribute("value", name);
 //    element.setAttribute("name", name);
-	
-	
+
+
 	var tableEntry = document.createElement("td");
-	
+
 	tableEntry.appendChild(element);
-	
-	
+
+
     var controlBar = document.getElementById("AlgorithmSpecificControls");
-	
+
     //Append the element in page (in span).
     controlBar.appendChild(tableEntry);
 	return element;
-	
+
 }
 
 
@@ -120,7 +120,7 @@ function addControlToAlgorithmBar(type, name) {
 
 function Algorithm(am)
 {
-	
+
 }
 
 
@@ -154,8 +154,8 @@ Algorithm.prototype.addCodeToCanvasBase  = function(code, start_x, start_y, line
 				this.cmd("AlignRight", codeID[i][j], codeID[i][j-1]);
 			}
 		}
-		
-		
+
+
 	}
 	return codeID;
 }
@@ -169,7 +169,7 @@ Algorithm.prototype.init = function(am, w, h)
 	am.addListener("AnimationUndo", this, this.undo);
 	this.canvasWidth = w;
 	this.canvasHeight = h;
-	
+
 	this.actionHistory = [];
 	this.recordAnimation = true;
 	this.commands = []
@@ -179,20 +179,20 @@ Algorithm.prototype.init = function(am, w, h)
 // Overload in subclass
 Algorithm.prototype.sizeChanged = function(newWidth, newHeight)
 {
-	
+
 }
 
 
-		
+
 Algorithm.prototype.implementAction = function(funct, val)
 {
-	var nxt = [funct, val];			
+	var nxt = [funct, val];
 	this.actionHistory.push(nxt);
 	var retVal = funct(val);
-	this.animationManager.StartNewAnimation(retVal);			
+	this.animationManager.StartNewAnimation(retVal);
 }
-		
-		
+
+
 Algorithm.prototype.isAllDigits = function(str)
 {
 	for (var i = str.length - 1; i >= 0; i--)
@@ -205,8 +205,8 @@ Algorithm.prototype.isAllDigits = function(str)
 	}
 	return true;
 }
-		
-		
+
+
 Algorithm.prototype.normalizeNumber = function(input, maxLen)
 {
 	if (!this.isAllDigits(input) || input == "")
@@ -218,7 +218,7 @@ Algorithm.prototype.normalizeNumber = function(input, maxLen)
 		return ("OOO0000" +input).substr(-maxLen, maxLen);
 	}
 }
-		
+
 Algorithm.prototype.disableUI = function(event)
 {
 	// to be overridden in base class
@@ -254,8 +254,10 @@ Algorithm.prototype.returnSubmitFloat = function(field, funct, maxsize)
 		}
 		else if (event.which) // Netscape/Firefox/Opera
 		{
-			keyASCII = event.which
-		} 
+			keyASCII = event.which;
+		}
+
+
 		// Submit on return
 		if (keyASCII == 13)
 		{
@@ -283,16 +285,16 @@ Algorithm.prototype.returnSubmitFloat = function(field, funct, maxsize)
 		// . (Decimal point) is OK if we haven't had one yet, and there is space
 		else if ((maxsize != undefined || field.value.length < maxsize) &&
 				 (keyASCII == 190) && field.value.indexOf(".") == -1)
-				 
+
 		{
 			return;
 		}
 		// Nothing else is OK
-		else 		
+		else
 		{
 			return false;
 		}
-		
+
 	}
 }
 
@@ -313,16 +315,16 @@ Algorithm.prototype.returnSubmit = function(field, funct, maxsize, intOnly)
 		else if (event.which) // Netscape/Firefox/Opera
 		{
 			keyASCII = event.which
-		} 
-
+		}
 		if (keyASCII == 13 && funct !== null)
 		{
 			funct();
 		}
-                else if (keyASCII == 190 || keyASCII == 59 || keyASCII == 173 || keyASCII == 189)
-		{ 
-			return false;	
-		    
+
+    else if (keyASCII == 190 || keyASCII == 59 || keyASCII == 173)
+		{
+			return false;
+
 		}
 		else if ((maxsize != undefined && field.value.length >= maxsize) ||
 				 intOnly && (keyASCII < 48 || keyASCII > 57))
@@ -330,14 +332,14 @@ Algorithm.prototype.returnSubmit = function(field, funct, maxsize, intOnly)
 			if (!controlKey(keyASCII))
 				return false;
 		}
-		
+
 	}
-	
+
 }
 
 Algorithm.prototype.addReturnSubmit = function(field, action)
 {
-	field.onkeydown = this.returnSubmit(field, action, 4, false);	
+	field.onkeydown = this.returnSubmit(field, action, 4, false);
 }
 
 Algorithm.prototype.reset = function()
@@ -345,7 +347,7 @@ Algorithm.prototype.reset = function()
 	// to be overriden in base class
 	// (Throw exception here?)
 }
-		
+
 Algorithm.prototype.undo = function(event)
 {
 	// Remvoe the last action (the one that we are going to undo)
@@ -377,10 +379,10 @@ Algorithm.prototype.clearHistory = function()
 {
 	this.actionHistory = [];
 }
-		
+
 		// Helper method to add text input with nice border.
 		//  AS3 probably has a built-in way to do this.   Replace when found.
-		
+
 
 		// Helper method to create a command string from a bunch of arguments
 Algorithm.prototype.cmd = function()
@@ -394,5 +396,5 @@ Algorithm.prototype.cmd = function()
 		}
 		this.commands.push(command);
 	}
-	
+
 }

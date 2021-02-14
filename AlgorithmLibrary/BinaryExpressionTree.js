@@ -39,7 +39,9 @@ BinaryExpressionTree.prototype.tree = null;
 BinaryExpressionTree.prototype.has_hard_reset = false;
 BinaryExpressionTree.prototype.recent_postfix = null;
 BinaryExpressionTree.prototype.STANDARD_SPACE = 50;
-BinaryExpressionTree.prototype.intitial_point = {"x":50,"y":100};
+BinaryExpressionTree.prototype.POSTFIX_INDEX = 1000;
+BinaryExpressionTree.prototype.intitial_point = {"x":50,"y":150};
+BinaryExpressionTree.prototype.postfix_initial_point = {"x":100, "y":50};
 BinaryExpressionTree.prototype.stack = [];
 
 BinaryExpressionTree.prototype.init = function(am, w, h)
@@ -96,7 +98,7 @@ BinaryExpressionTree.prototype.isSpecialCharacter = function(c){
 
 
 
-BinaryExpressionTree.prototype.loadNodes = function(text){
+BinaryExpressionTree.prototype.loadNodes = function(postfix){
 	this.commands = [];
 	let parent = null;
 
@@ -104,7 +106,7 @@ BinaryExpressionTree.prototype.loadNodes = function(text){
 	this.animationManager.animatedObjects.clearAllObjects();
 	this.stack = [];
 
-	this.recent_postfix = text;
+	this.recent_postfix = postfix;
 	this.has_hard_reset = false;
 	let instance = this;
 	let moveTree = function(tree,x,y){
@@ -125,19 +127,45 @@ BinaryExpressionTree.prototype.loadNodes = function(text){
 		}
 	}
 
-	for(var v =0; v < text.length; v++){
+	let highlightPostfixToNode = function(circleID,is_highlighted){
+		var postfix_id = instance.POSTFIX_INDEX+circleID;
+		instance.cmd("SetHighlight",postfix_id,is_highlighted);
+		if(is_highlighted == 1){
+			instance.cmd("Connect",postfix_id,circleID);
+		}else {
+			instance.cmd("Disconnect",postfix_id,circleID);
+		}
+		instance.cmd("SetEdgeHighlight",postfix_id,circleID,is_highlighted);
+		instance.cmd("SetHighlight",circleID,is_highlighted);
+	}
+
+	this.cmd("CreateLabel",2000,"Postfix Notation", this.postfix_initial_point.x+60, this.postfix_initial_point.y-20)
+	for(var i = this.POSTFIX_INDEX; i < this.POSTFIX_INDEX+postfix.length; i++){
+		this.cmd("CreateRectangle",i,postfix[i-this.POSTFIX_INDEX],50,25,
+		this.postfix_initial_point.x+=50,
+		this.postfix_initial_point.y);
+		// this.cmd("CreateCircle",i,postfix[i-1000],postfix_table.x+=50,postfix_table.y,'center','center','#000');
+	}
+
+	for(var v =0; v < postfix.length; v++){
 		var circleID = this.nextIndex++;
 		this.cmd("Step");
-		if(!this.isSpecialCharacter(text[this.nextIndex - 1])){
-			let value = text[this.nextIndex - 1] + "";
+		if(!this.isSpecialCharacter(postfix[this.nextIndex - 1])){
+			let value = postfix[this.nextIndex - 1] + "";
 			this.intitial_point.x+= 50;
+
+
 			this.cmd("CreateCircle", circleID,value, this.intitial_point.x,this.intitial_point.y);
+
+			highlightPostfixToNode(circleID,1);
 			let node = new BSTNode(value,circleID,this.intitial_point.x,this.intitial_point.y);
 			this.stack.push(node);
-
+			this.cmd("Step");
+			highlightPostfixToNode(circleID,0);
 		} else {
-			let value = text[this.nextIndex - 1];
+			let value = postfix[this.nextIndex - 1];
 			this.cmd("CreateCircle", circleID,value, this.intitial_point.x+70,this.intitial_point.y);
+			highlightPostfixToNode(circleID,1);
 
 			let temp_left_node = this.stack[this.stack.length - 1].id;
 			let temp_right_node = this.stack[this.stack.length - 2].id;
@@ -151,10 +179,14 @@ BinaryExpressionTree.prototype.loadNodes = function(text){
 			node.x = node.right.x + (node.left.x - node.right.x)/2;
 			node.y = node.right.y < node.left.y ? node.right.y - this.STANDARD_SPACE : node.left.y - this.STANDARD_SPACE;
 			this.cmd("Step");
+
 			this.cmd("Move",circleID, node.x,node.y);
-			this.cmd("Step");
 			this.cmd("Connect",circleID,temp_left_node);
 			this.cmd("Connect",circleID,temp_right_node);
+			this.cmd("SetEdgeHighlight",circleID,temp_left_node,1);
+			this.cmd("SetEdgeHighlight",circleID,temp_right_node,1);
+			this.cmd("Step");
+
 			if(!node.left.hasChild() && node.right.y < node.left.y){
 				this.cmd("Step");
 				node.left.x = node.right.x + this.STANDARD_SPACE;
@@ -180,7 +212,9 @@ BinaryExpressionTree.prototype.loadNodes = function(text){
 			this.stack.pop();
 			this.stack.pop();
 			this.stack.push(node);
-			this.cmd("Step");
+			highlightPostfixToNode(circleID,0);
+			this.cmd("SetEdgeHighlight",circleID,temp_left_node,0);
+			this.cmd("SetEdgeHighlight",circleID,temp_right_node,0);
 			moveSubtrees();
 		}
 	}
@@ -262,10 +296,12 @@ BinaryExpressionTree.prototype.addControls =  function()
 	}
 
 	this.text_field = addControlToAlgorithmBar("Text", "");
+
 	this.text_field.onkeydown = this.returnSubmit(this.text_field,
 	                                              null, // callback to make when return is pressed
 	                                              50,                     // integer, max number of characters allowed in field
 	                                              false);                        // boolean, true of only digits can be entered.
+
 	this.controls.push(this.text_field);
 	this.btn_convert = addControlToAlgorithmBar("Button", "convert");
 	this.btn_convert.onclick = this.onConvertClick.bind(this);
@@ -277,6 +313,7 @@ BinaryExpressionTree.prototype.addControls =  function()
 BinaryExpressionTree.prototype.partialReset = function(){
 	this.intitial_point.x = 50;
 	this.nextIndex = 0;
+	this.postfix_initial_point = {"x":50, "y":50};
 }
 
 BinaryExpressionTree.prototype.reset = function()
